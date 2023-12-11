@@ -18,41 +18,51 @@ def get_simil(corpus, names = []):
   simil = cosine_similarity(array)[0][1:]
   dic = {"cosine": {names[i]:simil[i] for i in range(len(names))}}
   return dic 
-  #output 1: simil, output 2: similar syst.(closer together than to the ref)
-path_hyp = sys.argv[1]
-path_ref = sys.argv[2]
+#output 1: simil, output 2: similar syst.(closer together than to the ref)
 
-all_hyp = glob.glob(f"{path_hyp}/*/*")
-all_ref = glob.glob(f"{path_ref}/*")
+def get_data(path_hyp, path_ref):
+  all_hyp = glob.glob(f"{path_hyp}/*/*")
+  all_ref = glob.glob(f"{path_ref}/*")
 
-data = {re.split("/", path)[-1]:{"ref": path, "hyp":[]} for path in all_ref}
-for path in all_hyp:
-  filename = re.split("/", path)[-1]
-  data[filename]["hyp"].append(path)
+  data = {re.split("/", path)[-1]:{"ref": path, "hyp":[]} for path in all_ref}
+  for path in all_hyp:
+    filename = re.split("/", path)[-1]
+    data[filename]["hyp"].append(path)
+  return data
 
+def get_results(data):
+  results = {}
+  for filename, dic in data.items():
+    hyp_path = sorted([path for path in dic["hyp"]])
+    hyp_names = [re.split("/", path)[-2] for path in hyp_path]
+    corpus = [open_file(dic["ref"])]
+    corpus += [open_file(path) for path in hyp_path]
+    dic_simil = get_simil(corpus, names=hyp_names)
+    for metric, d in dic_simil.items():
+      results.setdefault(metric, {})
+      for name, res in d.items():
+        results[metric].setdefault(name, [])
+        results[metric][name].append(res)
+  return results
 
-results = {}
-for filename, dic in data.items():
+def viz(results):
+  
+  import statistics as st
+  dic_agreg = {}
+  for metric, dic_syst in results.items():
+    dic_agreg.setdefault(metric, {"mean":[]})
+    for syst, l_res in dic_syst.items():
+      dic_agreg[metric]["mean"].append([st.mean(l_res), syst])
+    print(metric)
+    print(sorted(dic_agreg[metric]["mean"], reverse=True))
 
-  hyp_path = sorted([path for path in dic["hyp"]])
-  hyp_names = [re.split("/", path)[-2] for path in hyp_path]
-  corpus = [open_file(dic["ref"])]
-  corpus += [open_file(path) for path in hyp_path]
-  dic_simil = get_simil(corpus, names=hyp_names)
-  for metric, d in dic_simil.items():
-    results.setdefault(metric, {})
-    for name, res in d.items():
-      results[metric].setdefault(name, [])
-      results[metric][name].append(res)
-
-
-import statistics as st
-
-dic_agreg = {}
-for metric, dic_syst in results.items():
-  dic_agreg.setdefault(metric, {"mean":[]})
-  for syst, l_res in dic_syst.items():
-    dic_agreg[metric]["mean"].append([st.mean(l_res), syst])
-  print(metric)
-  print(sorted(dic_agreg[metric]["mean"], reverse=True))
+if __name__=="__main__":
+  path_hyp = "dummy_data/cleaned/"
+  path_ref = "dummy_data/reference/"
+  if len(sys.argv)==3:
+    path_hyp = sys.argv[1]
+    path_ref = sys.argv[2]
+  data = get_data(path_hyp, path_ref)
+  results = get_results(data) 
+  results_for_viz = viz(results) 
 
