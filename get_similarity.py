@@ -23,10 +23,12 @@ def get_simil(corpus, names = []):
 def get_data(path_hyp, path_ref):
   all_hyp = glob.glob(f"{path_hyp}/*/*")
   all_ref = glob.glob(f"{path_ref}/*")
-
-  data = {re.split("/", path)[-1]:{"ref": path, "hyp":[]} for path in all_ref}
+  sep = "/"
+  if len(re.split(sep, all_hyp[0]))==1:
+      sep="\\\\"
+  data = {re.split(sep, path)[-1]:{"ref": path, "hyp":[]} for path in all_ref}
   for path in all_hyp:
-    filename = re.split("/", path)[-1]
+    filename = re.split(sep, path)[-1]
     data[filename]["hyp"].append(path)
   return data
 
