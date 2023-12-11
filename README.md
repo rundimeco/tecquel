@@ -2,9 +2,11 @@ example : try test.py
 
 from get_similarity import process_data
 
-path_hyp = "dummy_data/cleaned/"# your path to the reference data
-path_ref = "dummy_data/reference/"#your path to the hypothesis (one directory for each different hypothesis)
-# NB: the filenames must be the same
+path_hyp = "dummy_data/reference/"# your path to the reference data
+path_ref = "dummy_data/cleaned/"#your path to the hypothesis (one directory for each different hypothesis)
+
+
+NB: the filenames must be the same in teh "reference dir" and all the hypothesis dirs
 
 res = process_data(path_hyp, path_ref)
 
