@@ -49,12 +49,19 @@ def viz(results):
   
   import statistics as st
   dic_agreg = {}
+  out = {}
   for metric, dic_syst in results.items():
     dic_agreg.setdefault(metric, {"mean":[]})
     for syst, l_res in dic_syst.items():
       dic_agreg[metric]["mean"].append([st.mean(l_res), syst])
-    print(metric)
-    print(sorted(dic_agreg[metric]["mean"], reverse=True))
+    out[metric+"_mean"] = sorted(dic_agreg[metric]["mean"], reverse=True)
+  return out
+
+def process_data(path_hyp, path_ref):
+  data = get_data(path_hyp, path_ref)
+  results = get_results(data) 
+  results_for_viz = viz(results) 
+  return results_for_viz
 
 if __name__=="__main__":
   path_hyp = "dummy_data/cleaned/"
@@ -62,7 +69,6 @@ if __name__=="__main__":
   if len(sys.argv)==3:
     path_hyp = sys.argv[1]
     path_ref = sys.argv[2]
-  data = get_data(path_hyp, path_ref)
-  results = get_results(data) 
-  results_for_viz = viz(results) 
+  res = process_data(path_hyp, path_ref)
+  import json
 
