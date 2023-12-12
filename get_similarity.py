@@ -3,6 +3,8 @@ import glob
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import os
+from pathlib import PurePath
 
 def open_file(path):
   with open(path, encoding="utf-8") as f:
@@ -23,12 +25,10 @@ def get_simil(corpus, names = []):
 def get_data(path_hyp, path_ref):
   all_hyp = glob.glob(f"{path_hyp}/*/*")
   all_ref = glob.glob(f"{path_ref}/*")
-  sep = "/"
-  if len(re.split(sep, all_hyp[0]))==1:
-      sep="\\\\"
-  data = {re.split(sep, path)[-1]:{"ref": path, "hyp":[]} for path in all_ref}
+
+  data = {PurePath(path).parts[-1]:{"ref": path, "hyp":[]} for path in all_ref}
   for path in all_hyp:
-    filename = re.split(sep, path)[-1]
+    filename = os.path.basename(path)
     data[filename]["hyp"].append(path)
   return data
 
@@ -36,7 +36,7 @@ def get_results(data):
   results = {}
   for filename, dic in data.items():
     hyp_path = sorted([path for path in dic["hyp"]])
-    hyp_names = [re.split("/", path)[-2] for path in hyp_path]
+    hyp_names = [PurePath(path).parts[-2] for path in hyp_path]
     corpus = [open_file(dic["ref"])]
     corpus += [open_file(path) for path in hyp_path]
     dic_simil = get_simil(corpus, names=hyp_names)
