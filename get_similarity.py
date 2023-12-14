@@ -3,6 +3,7 @@ import glob
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import pairwise_distances
 import os
 from pathlib import PurePath
 import json
@@ -31,6 +32,10 @@ def get_simil(corpus, names = []):
   array = X.toarray()
   simil = cosine_similarity(array)[0][1:]
   dic = {"cosine": {names[i]:simil[i] for i in range(len(names))}}
+  for metric in ["dice", "jaccard", "braycurtis"]:
+    simil = pairwise_distances(array, metric=metric)[0][1:]
+    dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
+  print(dic)
   return dic 
 #output 1: simil, output 2: similar syst.(closer together than to the ref)
 
