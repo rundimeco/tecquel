@@ -83,9 +83,9 @@ def process_data(path_hyp, path_ref, by_source= False):
   data = get_data(path_hyp, path_ref)
   results = get_results(data, by_source) 
   results_for_viz = viz(results) 
-  os.makedirs("RESULTS/", exist_ok = True)
+  os.makedirs("./RESULTS/", exist_ok = True)
   filename_out = "--".join(PurePath(path_ref).parts)
-  path_out = f"RESULTS/{filename_out}.json"
+  path_out = f"./RESULTS/{filename_out}.json"
   with open(path_out, "w") as w:
     w.write(json.dumps(results_for_viz, indent=2))
   print(f"Output written : {path_out}")
