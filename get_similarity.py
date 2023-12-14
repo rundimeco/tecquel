@@ -5,12 +5,24 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 from pathlib import PurePath
+import json
 
 def open_file(path):
   with open(path, encoding="utf-8") as f:
     content = f.read()
   return content
 
+def process_by_source(path_sources):
+  print(f"path_sources : {path_sources}")
+  for source in glob.glob(f"{path_sources}/*"):
+    path_ref = f"{source}/REF/TXT/"
+    path_hyp = f"{source}/HYP/*"
+    print(source)
+    print(f"  Processing {path_ref} as reference path")
+    print(f"  Processing {path_hyp} as hypothesis path")
+    res = process_data(path_hyp, path_ref, by_source = True)
+    print(json.dumps(res, indent =2))
+    
 def get_simil(corpus, names = []):
   if len(names)<len(corpus)-1:
     names = [x for x in range(len(corpus)-1)]
@@ -25,18 +37,21 @@ def get_simil(corpus, names = []):
 def get_data(path_hyp, path_ref):
   all_hyp = glob.glob(f"{path_hyp}/*/*")
   all_ref = glob.glob(f"{path_ref}/*")
-
   data = {PurePath(path).parts[-1]:{"ref": path, "hyp":[]} for path in all_ref}
   for path in all_hyp:
     filename = os.path.basename(path)
-    data[filename]["hyp"].append(path)
+    if filename in data:
+      data[filename]["hyp"].append(path)
   return data
 
-def get_results(data):
+def get_results(data, by_source = False):
+  pos_hyp_name = -2#adapting directory structure
+  if by_source==True:
+      pos_hyp_name = -3
   results = {}
   for filename, dic in data.items():
     hyp_path = sorted([path for path in dic["hyp"]])
-    hyp_names = [PurePath(path).parts[-2] for path in hyp_path]
+    hyp_names = [PurePath(path).parts[pos_hyp_name] for path in hyp_path]
     corpus = [open_file(dic["ref"])]
     corpus += [open_file(path) for path in hyp_path]
     dic_simil = get_simil(corpus, names=hyp_names)
@@ -59,10 +74,16 @@ def viz(results):
     out[metric+"_mean"] = sorted(dic_agreg[metric]["mean"], reverse=True)
   return out
 
-def process_data(path_hyp, path_ref):
+def process_data(path_hyp, path_ref, by_source= False):
   data = get_data(path_hyp, path_ref)
-  results = get_results(data) 
+  results = get_results(data, by_source) 
   results_for_viz = viz(results) 
+  os.makedirs("RESULTS/", exist_ok = True)
+  filename_out = "--".join(PurePath(path_ref).parts)
+  path_out = f"RESULTS/{filename_out}.json"
+  with open(path_out, "w") as w:
+    w.write(json.dumps(results_for_viz, indent=2))
+  print(f"Output written : {path_out}")
   return results_for_viz
 
 if __name__=="__main__":
