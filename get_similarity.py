@@ -7,6 +7,7 @@ from sklearn.metrics import pairwise_distances
 import os
 from pathlib import PurePath
 import json
+import pywer
 
 def open_file(path):
   with open(path, encoding="utf-8") as f:
@@ -22,7 +23,7 @@ def process_by_source(path_sources):
     print(f"  Processing {path_ref} as reference path")
     print(f"  Processing {path_hyp} as hypothesis path")
     res = process_data(path_hyp, path_ref, by_source = True)
-    print(json.dumps(res, indent =2))
+    #print(json.dumps(res, indent =2))
     
 def get_simil(corpus, names = []):
   if len(names)<len(corpus)-1:
@@ -35,7 +36,12 @@ def get_simil(corpus, names = []):
   for metric in ["dice", "jaccard", "braycurtis"]:
     simil = pairwise_distances(array, metric=metric)[0][1:]
     dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
-  print(dic)
+  for hypo, name in zip(corpus[1:], names):
+    for metric, res in [["WER", pywer.wer(hypo, corpus[0])],
+                        ["CER", pywer.cer(hypo, corpus[0])],
+]:
+      dic.setdefault(metric, {})
+      dic[metric][name] = res
   return dic 
 #output 1: simil, output 2: similar syst.(closer together than to the ref)
 
@@ -76,7 +82,10 @@ def viz(results):
     dic_agreg.setdefault(metric, {"mean":[]})
     for syst, l_res in dic_syst.items():
       dic_agreg[metric]["mean"].append([st.mean(l_res), syst])
-    out[metric+"_mean"] = sorted(dic_agreg[metric]["mean"], reverse=True)
+    rev = True
+    if metric in ["WER", "CER"]:
+      rev = False
+    out[metric+"_mean"] = sorted(dic_agreg[metric]["mean"], reverse=rev)
   return out
 
 def process_data(path_hyp, path_ref, by_source= False):
@@ -99,5 +108,4 @@ if __name__=="__main__":
     path_hyp = sys.argv[1]
     path_ref = sys.argv[2]
   res = process_data(path_hyp, path_ref)
-  import json
 
