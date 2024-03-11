@@ -43,7 +43,6 @@ def get_simil(corpus, names = []):
 ]:
       dic.setdefault(metric, {})
       dic[metric][name] = res
-      print(metric, res)
   return dic 
 #output 1: simil, output 2: similar syst.(closer together than to the ref)
 
