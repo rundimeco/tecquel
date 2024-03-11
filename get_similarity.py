@@ -8,6 +8,7 @@ import os
 from pathlib import PurePath
 import json
 import pywer
+import tqdm
 
 def open_file(path):
   with open(path, encoding="utf-8") as f:
@@ -37,7 +38,8 @@ def get_simil(corpus, names = []):
   for metric in ["dice", "jaccard", "braycurtis"]:
     simil = pairwise_distances(array, metric=metric)[0][1:]
     dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
-  for hypo, name in zip(corpus[1:], names):
+  print("--Computing WER and CER--")
+  for hypo, name in tqdm.tqdm(zip(corpus[1:], names)):
     for metric, res in [["WER", pywer.wer([corpus[0]], [hypo])],
                         ["CER", pywer.cer([corpus[0]], [hypo])],
 ]:
