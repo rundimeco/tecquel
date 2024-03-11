@@ -17,6 +17,7 @@ def open_file(path):
 def process_by_source(path_sources):
   print(f"path_sources : {path_sources}")
   for source in glob.glob(f"{path_sources}/*"):
+    print(source)
     path_ref = f"{source}/REF/TXT/"
     path_hyp = f"{source}/HYP/*"
     print(source)
@@ -37,17 +38,19 @@ def get_simil(corpus, names = []):
     simil = pairwise_distances(array, metric=metric)[0][1:]
     dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
   for hypo, name in zip(corpus[1:], names):
-    for metric, res in [["WER", pywer.wer(hypo, corpus[0])],
+    for metric, res in [["WER", pywer.wer([hypo], [corpus[0]])],
                         ["CER", pywer.cer(hypo, corpus[0])],
 ]:
       dic.setdefault(metric, {})
       dic[metric][name] = res
+      print(metric, res)
   return dic 
 #output 1: simil, output 2: similar syst.(closer together than to the ref)
 
 def get_data(path_hyp, path_ref):
   all_hyp = glob.glob(f"{path_hyp}/*/*")
   all_ref = glob.glob(f"{path_ref}/*")
+#  all_ref = [x for x in all_ref if "0005" 
   data = {PurePath(path).parts[-1]:{"ref": path, "hyp":[]} for path in all_ref}
   for path in all_hyp:
     filename = os.path.basename(path)
