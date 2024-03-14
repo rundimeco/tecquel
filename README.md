@@ -1,6 +1,6 @@
 ## Simple example : simple_example.py
 
-usage :
+**Basic usage with strings**
 
 from get_similarity import get_simil, sim_by_file
 
@@ -9,17 +9,18 @@ s2 = "Ie mange le lapin vert"
 
 res = get_simil([s1, s2])
 
-On peut aussi comparer s1 à plsuieurs chaînes :
+**You can compare numerous strings**
 
 res = get_simil([s1, s2, s3, s4])
 
-On peut travailler avec des chemins de fichiers :
+**You can work  with files paths**
 
 res = sim_by_file([path_ref, path_hyp])
 
 comparer le fichier dont le chemin est path_ref au fichier dont le chemin est path_hyp
 
-## Example with a more complex directory structure (useful for web scraping an dOCR when one compares multiple systems)
+## Example with a more complex directory structure
+*Useful for web scraping and OCR when one compares multiple systems*
 
 example : try test.py
 
