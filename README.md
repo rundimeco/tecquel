@@ -5,9 +5,12 @@
 from get_similarity import get_simil, sim_by_file
 
 s1 = "Je mange le Lapin"
+
 s2 = "Ie mange le lapin vert"
 
 res = get_simil([s1, s2])
+
+res is a Python dictionary
 
 **You can compare numerous strings**
 
@@ -17,7 +20,7 @@ res = get_simil([s1, s2, s3, s4])
 
 res = sim_by_file([path_ref, path_hyp])
 
-comparer le fichier dont le chemin est path_ref au fichier dont le chemin est path_hyp
+compares path_ref with path_hyp
 
 ## Example with a more complex directory structure
 *Useful for web scraping and OCR when one compares multiple systems*
