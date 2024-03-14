@@ -10,6 +10,12 @@ import json
 import pywer
 import tqdm
 
+def sim_by_file(liste_path, all_metrics=True):
+  string_ref = open_file(liste_path[0])
+  string_hyp = [open_file(x) for x in liste_path[1:]]
+  res = get_simil([string_ref]+string_hyp, liste_path[1:], all_metrics)
+  return res
+
 def open_file(path):
   with open(path, encoding="utf-8") as f:
     content = f.read()
@@ -27,7 +33,7 @@ def process_by_source(path_sources):
     res = process_data(path_hyp, path_ref, by_source = True)
     #print(json.dumps(res, indent =2))
     
-def get_simil(corpus, names = []):
+def get_simil(corpus, names = [], all_metrics  = True):
   if len(names)<len(corpus)-1:
     names = [x for x in range(len(corpus)-1)]
   vectorizer = CountVectorizer(analyzer ="word", ngram_range=(1,2))
@@ -35,11 +41,12 @@ def get_simil(corpus, names = []):
   array = X.toarray()
   simil = cosine_similarity(array)[0][1:]
   dic = {"cosine": {names[i]:simil[i] for i in range(len(names))}}
-  for metric in ["dice", "jaccard", "braycurtis"]:
-    simil = pairwise_distances(array, metric=metric)[0][1:]
-    dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
+  if all_metrics:
+    for metric in ["dice", "jaccard", "braycurtis"]:
+      simil = pairwise_distances(array, metric=metric)[0][1:]
+      dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
   print("--Computing WER and CER--")
-  for hypo, name in tqdm.tqdm(zip(corpus[1:], names)):
+  for hypo, name in zip(corpus[1:], names):
     for metric, res in [["WER", pywer.wer([corpus[0]], [hypo])],
                         ["CER", pywer.cer([corpus[0]], [hypo])],
 ]:

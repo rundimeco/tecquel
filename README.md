@@ -1,3 +1,26 @@
+## Simple example : simple_example.py
+
+usage :
+
+from get_similarity import get_simil, sim_by_file
+
+s1 = "Je mange le Lapin"
+s2 = "Ie mange le lapin vert"
+
+res = get_simil([s1, s2])
+
+On peut aussi comparer s1 à plsuieurs chaînes :
+
+res = get_simil([s1, s2, s3, s4])
+
+On peut travailler avec des chemins de fichiers :
+
+res = sim_by_file([path_ref, path_hyp])
+
+comparer le fichier dont le chemin est path_ref au fichier dont le chemin est path_hyp
+
+## Example with a more complex directory structure (useful for web scraping an dOCR when one compares multiple systems)
+
 example : try test.py
 
 from get_similarity import process_data
