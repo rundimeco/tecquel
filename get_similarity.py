@@ -37,12 +37,26 @@ def get_simil(corpus, names = [], all_metrics  = True):
   if len(names)<len(corpus)-1:
     names = [x for x in range(len(corpus)-1)]
   vectorizer = CountVectorizer(analyzer ="word", ngram_range=(1,2))
-  X = vectorizer.fit_transform(corpus)
+  list_metrics = ["dice", "jaccard", "braycurtis"]
+  try:
+    X = vectorizer.fit_transform(corpus)
+  except:
+    if len(corpus)==2:
+      print("The only hypothesis is empty")  
+      dic = {"cosine": {names[i]:0 for i in range(len(names))}}
+      for metric in list_metrics:
+        dic[metric]= {names[i]:0 for i in range(len(names))}
+      dic["WER"]=100
+      dic["CER"]=100
+      return dic
+    else:
+      print("At least one hypothesis is empty")  
+      1/0
   array = X.toarray()
   simil = cosine_similarity(array)[0][1:]
   dic = {"cosine": {names[i]:simil[i] for i in range(len(names))}}
   if all_metrics:
-    for metric in ["dice", "jaccard", "braycurtis"]:
+    for metric in list_metrics:
       simil = pairwise_distances(array, metric=metric)[0][1:]
       dic[metric] =  {names[i]:1-simil[i] for i in range(len(names))}
   print("--Computing WER and CER--")
