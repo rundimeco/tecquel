@@ -36,7 +36,8 @@ def process_by_source(path_sources):
 def get_simil(corpus, names = [], all_metrics  = True):
   if len(names)<len(corpus)-1:
     names = [x for x in range(len(corpus)-1)]
-  vectorizer = CountVectorizer(analyzer ="word", ngram_range=(1,2))
+  #vectorizer = CountVectorizer(analyzer ="word", ngram_range=(1,2))
+  vectorizer = CountVectorizer(analyzer ="char", ngram_range=(3, 4))
   list_metrics = ["dice", "jaccard", "braycurtis"]
   try:
     X = vectorizer.fit_transform(corpus)
